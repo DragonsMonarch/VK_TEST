@@ -1,0 +1,14 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.VK_TEST" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="conturColor"> @color/white</item>
+        <item name="dialColor"> @color/white</item>
+        <item name="markColor"> @color/black</item>
+        <item name="specialMarkColor">@color/black</item>
+        <item name="numberColor">@color/black</item>
+        <item name="hourColor">@color/black</item>
+        <item name="minuteColor">@color/black</item>
+    </style>
+</resources>
