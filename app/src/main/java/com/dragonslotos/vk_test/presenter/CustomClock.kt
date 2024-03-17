@@ -9,18 +9,14 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.os.Bundle
-import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.dragonslotos.vk_test.R
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.Calendar
 import kotlin.math.min
 
@@ -57,10 +53,15 @@ class CustomClock @JvmOverloads constructor(
 
     private var numerical: Boolean = true
 
+
+
     //Time
     private var Hour:Float = 0f
     private var Minute:Float = 0f
     private var Seconds:Float = 0f
+
+    //text font id
+    private var fontFamily:Typeface? = null
 
     private val mCirclePaint = Paint().apply {
         style = Paint.Style.FILL
@@ -101,6 +102,7 @@ class CustomClock @JvmOverloads constructor(
         Minute = typedArray.getFloat(R.styleable.CustomClock_minute, calendar.get(Calendar.MINUTE).toFloat())
         Seconds = typedArray.getFloat(R.styleable.CustomClock_seconds, calendar.get(Calendar.SECOND).toFloat())
         contur = typedArray.getFloat(R.styleable.CustomClock_contur, 0f)
+        fontFamily = typedArray.getFont(R.styleable.CustomClock_fontFamilys)
     }
 
     private fun drawPointer(canvas: Canvas) {
@@ -145,6 +147,10 @@ class CustomClock @JvmOverloads constructor(
         if(numerical){
             numPaint.setColor(number_color)
             for (i in 0..11){
+
+                if(fontFamily != null){
+                    numPaint.setTypeface(fontFamily)
+                }
 
                 canvas.save()
                 val textBound = Rect()
@@ -351,11 +357,15 @@ class CustomClock @JvmOverloads constructor(
         invalidate()
     }
     fun setHour(hour: Float){
-        this.Hour = hour * 15
+        this.Hour = hour * 30
         invalidate()
     }
     fun setMinute(minute: Float){
         this.Minute = minute * 6
+        invalidate()
+    }
+    fun setFontFamily(fontFamily:Typeface){
+        this.fontFamily = fontFamily
         invalidate()
     }
     fun setSeconds(seconds: Float){

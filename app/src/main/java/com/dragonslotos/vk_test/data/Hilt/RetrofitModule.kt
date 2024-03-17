@@ -16,7 +16,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.Retrofit.Builder
 import retrofit2.converter.gson.GsonConverterFactory;
-
+import java.util.concurrent.TimeUnit
 
 
 //impements retrofit dependecy
@@ -44,6 +44,8 @@ class RetrofitModule {
     fun okHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor?): OkHttpClient {
         return OkHttpClient()
             .newBuilder()
+            .readTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
             .addInterceptor(httpLoggingInterceptor)
             .build()
     }

@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.dragonslotos.vk_test.domain.usecases.GetCalendarTime
 import com.dragonslotos.vk_test.domain.usecases.GetCurrentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.concurrent.thread
@@ -16,10 +18,11 @@ import kotlin.math.min
 
 
 @HiltViewModel
-class MainViewModel @Inject constructor(getCurrentTime: GetCurrentTime): ViewModel() {
+class MainViewModel @Inject constructor(getCurrentTime: GetCurrentTime, getCalendarTime: GetCalendarTime): ViewModel() {
 
     //Inject UseCase
     private val getCurrentTime: GetCurrentTime = getCurrentTime
+    private val getCalendarTime: GetCalendarTime = getCalendarTime
     private val state = MutableLiveData<MainState>()
 
     val result: LiveData<MainState> =state
@@ -28,33 +31,35 @@ class MainViewModel @Inject constructor(getCurrentTime: GetCurrentTime): ViewMod
     //Time holder
     private val subscription: Disposable = Observable.interval(1, TimeUnit.SECONDS)
         .subscribe { seconds ->
-
-            var hour = state.value!!.hour
-            var minute = state.value!!.minute
-            var second = state.value!!.second
-            second++;
-            //Check Time limits
-            if(second > 60f){
-                second = 0f
-                minute++
+            if(state.value != null){
+                var hour = state.value!!.hour
+                var minute = state.value!!.minute
+                var second = state.value!!.second
+                second++;
+                //Check Time limits
+                if(second > 60f){
+                    second = 0f
+                    minute++
+                }
+                if(minute > 60f){
+                    minute = 0f
+                    hour++
+                }
+                if(hour >= 24f){
+                    hour = 0f
+                }
+                //push time
+                state.postValue(
+                    MainState(
+                        hour = hour,
+                        minute = minute,
+                        second = second,
+                        day =  state.value!!.day,
+                        day_number = state.value!!.day_number,
+                        month = state.value!!.month,
+                        dial = state.value?.dial))
             }
-            if(minute > 60f){
-                minute = 0f
-                hour++
-            }
-            if(hour >= 24f){
-                hour = 0f
-            }
-            //push time
-            state.postValue(
-            MainState(
-                hour = hour,
-                minute = minute,
-                second = second,
-                day =  state.value!!.day,
-                day_number = state.value!!.day_number,
-                month = state.value!!.month,
-                dial = state.value!!.dial)) }
+        }
 
 
 
@@ -63,7 +68,8 @@ class MainViewModel @Inject constructor(getCurrentTime: GetCurrentTime): ViewMod
         //create thread
         thread {
             //get time and parsing for push
-           val time =  getCurrentTime.getTime()
+            val time =  getCurrentTime.getTime()
+            Log.d("checker", time.toString())
             if(time != null){
                 state.postValue(MainState(
                     hour = time.hour.toFloat(),
@@ -72,6 +78,18 @@ class MainViewModel @Inject constructor(getCurrentTime: GetCurrentTime): ViewMod
                     day =  time.dayOfWeek!!.name,
                     day_number = time.dayOfMonth,
                     month = time.month.name,
+                    dial = state.value?.dial
+                ))
+            }
+            else{
+                val calendarTime = getCalendarTime.getTime()
+                state.postValue(MainState(
+                    hour = calendarTime.hour,
+                    minute = calendarTime.minute,
+                    second = calendarTime.second,
+                    day =  calendarTime.day,
+                    day_number = calendarTime.day_number,
+                    month = calendarTime.month,
                     dial = state.value?.dial
                 ))
             }
